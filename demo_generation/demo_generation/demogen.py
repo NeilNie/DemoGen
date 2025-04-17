@@ -1,8 +1,6 @@
-# from re import T
-# from turtle import st
-from diffusion_policies.common.replay_buffer import ReplayBuffer
-# from regex import I
-# import pcd_visualizer
+import sys
+sys.path.append("../../../")
+from src.diffusion_policy.common.replay_buffer import ReplayBuffer
 import numpy as np
 import copy
 import os
@@ -533,7 +531,7 @@ class DemoGen:
         """
         cprint(f"Examine episode {episode_id}", "green")
         
-        debug_save_dir = f"/home/zhengrong/data/dp3/debug/demo_generation/{self.demo_name}/{aug_setting}/{episode_id}-{vfunc(obj_trans)}-{vfunc(tar_trans)}"
+        debug_save_dir = f"debug/demo_generation/{self.demo_name}/{aug_setting}/{episode_id}-{vfunc(obj_trans)}-{vfunc(tar_trans)}"
         os.makedirs(debug_save_dir, exist_ok=True)
         cprint(f"Saving episode examination to {debug_save_dir}", "yellow")
         vis = visualizer.Visualizer()
