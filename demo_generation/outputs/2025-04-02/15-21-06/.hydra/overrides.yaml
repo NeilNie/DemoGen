@@ -1,5 +1,0 @@
-- data_root=../data
-- generation.range_name=test
-- generation.mode=grid
-- generation.n_gen_per_source=9
-- generation.render_video=True

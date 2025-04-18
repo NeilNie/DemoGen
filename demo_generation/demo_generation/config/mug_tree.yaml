@@ -1,7 +1,7 @@
 _target_: demo_generation.demogen.DemoGen
 
 data_root: data
-source_name: flower
+source_name: mug_tree
 
 task_n_object: 2
 

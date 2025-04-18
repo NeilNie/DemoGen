@@ -16,8 +16,8 @@ parsing_frames:
   skill-2: 
 
 mask_names:
-  object: green book
-  target: brown bookshelf on table
+  object: "green book on the table"
+  target: "brown wooden bookshelf"
 
 trans_range:
   src:
