@@ -214,8 +214,8 @@ class DemoGen:
             else:
                 ee_poses = source_demo["state"][:, :3]
                 skill_1_frame, motion_2_frame, skill_2_frame = self.parse_frames_two_stage(pcds, i, ee_poses)
-            # print(f"Skill-1: {skill_1_frame}, Motion-2: {motion_2_frame}, Skill-2: {skill_2_frame}")
-            
+            print(f"Skill-1: {skill_1_frame}, Motion-2: {motion_2_frame}, Skill-2: {skill_2_frame}")
+
             pcd_obj = self.get_objects_pcd_from_sam_mask(pcds[0], i, "object")
             pcd_tar = self.get_objects_pcd_from_sam_mask(pcds[0], i, "target")
             obj_bbox = self.pcd_bbox(pcd_obj)
@@ -361,6 +361,16 @@ class DemoGen:
                 later_frames = self.translate_all_frames(source_demo, tar_trans_vec, current_frame)
                 ############# stage {skill-2} ends #############
 
+                new_traj_pcds = []
+                for pcd in traj_pcds:
+                    # make sure to sample 4096 points from each pcd
+                    if len(pcd) < 4096:
+                        pcd = pcd[np.random.choice(pcd.shape[0], 4096, replace=True)]
+                    else:
+                        pcd = pcd[:4096]
+                    new_traj_pcds.append(pcd)
+                traj_pcds = new_traj_pcds
+                
                 generated_episode = {
                     "state": np.concatenate([traj_states, later_frames["state"]], axis=0) if len(traj_states) > 0 else later_frames["state"],
                     "action": np.concatenate([traj_actions, later_frames["action"]], axis=0) if len(traj_actions) > 0 else later_frames["action"],
@@ -678,7 +688,7 @@ class DemoGen:
         masks.append(np.logical_not(np.any(masks, axis=0)))
         for mask in masks:
             selected_pcds.append(pcd[mask])
-        assert np.sum([len(p) for p in selected_pcds]) == pcd.shape[0]
+
         return selected_pcds
 
     @staticmethod

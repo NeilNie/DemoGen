@@ -1,19 +1,34 @@
-import re
 import numpy as np
 from scipy.spatial.transform import Rotation as R
-import matplotlib.pyplot as plt
 
+## THE CURRENT CONFIG IS FOR THE MUG TREE TASK
 
 ################################# Camera Calibration ##############################################
 # refer to https://gist.github.com/hshi74/edabc1e9bed6ea988a2abd1308e1cc96
 
-ROBOT2CAM_POS = np.array([1.2274124573982026, -0.009193338733170697, 0.3683118830445561])
-ROBOT2CAM_QUAT_INITIAL = np.array([0.015873920322366883, -0.18843429010734952, -0.009452363954531973, 0.9819120071477938])
+robot_2_cam = np.array([
+    [0.4919347656212202, -0.49046766542986825, 0.7193475757325765, 0.028804696241265915],
+    [-0.8691879149480207, -0.22891099007933832, 0.43832811546573464, -0.3695261485093276],
+    [-0.05031824266161347, -0.8408607667659251, -0.5389074117801784, 0.6030444321235613],
+    [0.0, 0.0, 0.0, 1.0]
+])
+# robot_2_cam = np.linalg.inv(robot_2_cam)
 
-OFFSET_POS=np.array([0.0, -0.01, 0.008])
-OFFSET_ORI_X=R.from_euler('x', -1.1, degrees=True)
-OFFSET_ORI_Y=R.from_euler('y', 1.1, degrees=True)
-OFFSET_ORI_Z=R.from_euler('z', -1.6, degrees=True)
+# ROBOT2CAM_POS = np.array([1.2274124573982026, -0.009193338733170697, 0.3683118830445561])
+# ROBOT2CAM_QUAT_INITIAL = np.array([0.015873920322366883, -0.18843429010734952, -0.009452363954531973, 0.9819120071477938])
+
+ROBOT2CAM_POS = robot_2_cam[:3, 3]
+ROBOT2CAM_QUAT_INITIAL = R.from_matrix(robot_2_cam[:3, :3]).as_quat()
+
+# OFFSET_POS=np.array([0.0, -0.01, 0.008])
+# OFFSET_ORI_X=R.from_euler('x', -1.1, degrees=True)
+# OFFSET_ORI_Y=R.from_euler('y', 1.1, degrees=True)
+# OFFSET_ORI_Z=R.from_euler('z', -1.6, degrees=True)
+
+OFFSET_POS=np.array([0.0, 0.0, 0.0])
+OFFSET_ORI_X=R.from_euler('x', 0, degrees=True)
+OFFSET_ORI_Y=R.from_euler('y', 0, degrees=True)
+OFFSET_ORI_Z=R.from_euler('z', 0, degrees=True)
 
 ROBOT2CAM_POS = ROBOT2CAM_POS + OFFSET_POS
 ori = R.from_quat(ROBOT2CAM_QUAT_INITIAL) * OFFSET_ORI_X * OFFSET_ORI_Y * OFFSET_ORI_Z
@@ -24,27 +39,37 @@ robot2cam_mat[:3, :3] = R.from_quat(ROBOT2CAM_QUAT).as_matrix()
 robot2cam_mat[:3, 3] = ROBOT2CAM_POS
 
 
-REALSENSE_SCALE = 0.0002500000118743628
-fx = 1354.796875
-fy = 1354.6197509765625
-cx = 986.0130004882812
-cy = 548.7333374023438
+REALSENSE_SCALE = 1
+
+# REALSENSE_SCALE = 0.0002500000118743628
+# fx = 1354.796875
+# fy = 1354.6197509765625
+# cx = 986.0130004882812
+# cy = 548.7333374023438
+# intrinsic_matrix = np.array([
+#     [fx,  0, cx],
+#     [ 0, fy, cy],
+#     [ 0,  0,  1]
+# ])
+
 intrinsic_matrix = np.array([
-    [fx,  0, cx],
-    [ 0, fy, cy],
-    [ 0,  0,  1]
-])
+    [610.0545654296875, 0.0, 316.09674072265625],
+    [0.0, 609.664306640625, 240.20550537109375],
+    [0.0, 0.0, 1.0]]
+)
 
 
-T_link2viz = np.array([[0, 0, 1, 0],
-                        [1, 0, 0, 0],
-                        [0, 1, 0, 0],
-                        [0, 0, 0, 1]])
+# T_link2viz = np.array([[0, 0, 1, 0],
+#                         [1, 0, 0, 0],
+#                         [0, 1, 0, 0],
+#                         [0, 0, 0, 1]])
+T_link2viz = np.eye(4)
 
-transform_realsense_util = np.array([[1, 0, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
+# transform_realsense_util = np.array([[1, 0, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
+transform_realsense_util = np.eye(4)
 image_size = (1920, 1080)
+image_size = (640, 480)
 ##############################################
-
 
 
 def inverse_extrinsic_matrix(matrix):
@@ -95,9 +120,8 @@ def project_points_to_image(point_cloud, K, R=np.eye(3), T=np.zeros(3)):
 
 
 def filter_points_by_mask(points, mask, intrinsic_matrix, image_size):
-    projected_points = project_points_to_image(points, intrinsic_matrix, R=np.eye(3), T=np.zeros(3))
+    projected_points = project_points_to_image(points, intrinsic_matrix, R=np.eye(3), T=np.zeros(3))    
     pixel_coords = np.floor(projected_points).astype(int) 
-    
     valid_points = (pixel_coords[:, 0] >= 0) & (pixel_coords[:, 0] < image_size[0]) & \
                    (pixel_coords[:, 1] >= 0) & (pixel_coords[:, 1] < image_size[1])
     
