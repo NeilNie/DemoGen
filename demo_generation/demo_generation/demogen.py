@@ -361,6 +361,7 @@ class DemoGen:
                 later_frames = self.translate_all_frames(source_demo, tar_trans_vec, current_frame)
                 ############# stage {skill-2} ends #############
 
+                # TODO: fix this hard-coded thing
                 new_traj_pcds = []
                 for pcd in traj_pcds:
                     # make sure to sample 4096 points from each pcd
@@ -370,6 +371,7 @@ class DemoGen:
                         pcd = pcd[:4096]
                     new_traj_pcds.append(pcd)
                 traj_pcds = new_traj_pcds
+                # ----------------------------
                 
                 generated_episode = {
                     "state": np.concatenate([traj_states, later_frames["state"]], axis=0) if len(traj_states) > 0 else later_frames["state"],

@@ -10,8 +10,8 @@ interpolate_step_size: 0.01
 
 use_manual_parsing_frames: true
 parsing_frames:
-  motion-1: 
-  skill-1: 
+  motion-1: 450
+  skill-1: 500
   motion-2: 
   skill-2: 
 

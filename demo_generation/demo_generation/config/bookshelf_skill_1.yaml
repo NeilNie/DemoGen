@@ -1,24 +1,23 @@
 _target_: demo_generation.demogen.DemoGen
 
 data_root: data
-source_name: mug_tree
+source_name: bookshelf
 
 task_n_object: 2
 
 use_linear_interpolation: false
 interpolate_step_size: 0.01
 
-
 use_manual_parsing_frames: true
 parsing_frames:
-  motion-1: 10
-  skill-1: 160
-  motion-2: 220
-  skill-2: 330
+  motion-1: 300
+  skill-1: 320
+  motion-2: 
+  skill-2: 
 
 mask_names:
-  object: plastic mug
-  target: wooden mug tree
+  object: "green book on the table"
+  target: "brown wooden bookshelf"
 
 trans_range:
   src:
