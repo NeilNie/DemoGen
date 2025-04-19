@@ -289,7 +289,11 @@ class DemoGen:
                 ############## stage {motion-1} ends #############
                 
                 ############# stage {skill-1} starts #############
-                is_stage_motion2 = current_frame >= motion_2_frame
+                if motion_2_frame is not None:
+                    is_stage_motion2 = current_frame >= motion_2_frame
+                else:
+                    is_stage_motion2 = current_frame > len(source_demo["action"]) - 1
+                
                 while not is_stage_motion2:
                     action = source_demo["action"][current_frame].copy()
                     traj_actions.append(action)
@@ -306,57 +310,61 @@ class DemoGen:
                     traj_pcds.append(np.concatenate([pcd_obj_robot, pcd_tar], axis=0))
 
                     current_frame += 1
-                    is_stage_motion2 = current_frame >= motion_2_frame
+                    if motion_2_frame is not None:
+                        is_stage_motion2 = current_frame >= motion_2_frame
+                    else:
+                        is_stage_motion2 = current_frame > len(source_demo["action"]) - 1
                 ############## stage {skill-1} ends #############
 
-                ############# stage {motion-2} starts #############
-                trans_togo = tar_trans_vec - obj_trans_vec
-                start_pos = source_demo["state"][motion_2_frame][:3] - source_demo["action"][motion_2_frame][:3]
-                end_pos = source_demo["state"][skill_2_frame-1][:3] + trans_togo
-                
-                if self.use_linear_interpolation:
-                    step_action = (end_pos - start_pos) / (skill_2_frame - motion_2_frame)
-                else:
-                    xy_stage_frame = skill_2_frame - motion_2_frame
-                    step_actions = []
-                    z_action = end_pos[2] - start_pos[2]
-                    xy_action = end_pos[:2] - start_pos[:2]
+                if motion_2_frame is not None and skill_2_frame is not None:
+                    ############# stage {motion-2} starts #############
+                    trans_togo = tar_trans_vec - obj_trans_vec
+                    start_pos = source_demo["state"][motion_2_frame][:3] - source_demo["action"][motion_2_frame][:3]
+                    end_pos = source_demo["state"][skill_2_frame-1][:3] + trans_togo
                     
-                    if z_action != 0:
-                        z_action = np.sign(z_action) * round(np.abs(z_action), 3)
-                        z_step_num = int(np.abs(z_action) / 0.015)
-                        for _ in range(z_step_num):
-                            step_actions.append(np.array([0, 0, np.sign(z_action) * 0.015]))
-                            xy_stage_frame -= 1
-                    
-                    if xy_stage_frame > 0:
-                        action = xy_action / xy_stage_frame
-                        for _ in range(xy_stage_frame):
-                            step_actions.append(np.array([*action, 0]))
+                    if self.use_linear_interpolation:
+                        step_action = (end_pos - start_pos) / (skill_2_frame - motion_2_frame)
+                    else:
+                        xy_stage_frame = skill_2_frame - motion_2_frame
+                        step_actions = []
+                        z_action = end_pos[2] - start_pos[2]
+                        xy_action = end_pos[:2] - start_pos[:2]
+                        
+                        if z_action != 0:
+                            z_action = np.sign(z_action) * round(np.abs(z_action), 3)
+                            z_step_num = int(np.abs(z_action) / 0.015)
+                            for _ in range(z_step_num):
+                                step_actions.append(np.array([0, 0, np.sign(z_action) * 0.015]))
+                                xy_stage_frame -= 1
+                        
+                        if xy_stage_frame > 0:
+                            action = xy_action / xy_stage_frame
+                            for _ in range(xy_stage_frame):
+                                step_actions.append(np.array([*action, 0]))
 
-                for k in range(skill_2_frame - motion_2_frame):
-                    if not self.use_linear_interpolation:
-                        step_action = step_actions[k]
-                    source_action = source_demo["action"][current_frame]
-                    traj_actions.append(np.concatenate([step_action, source_action[3:]], axis=0))
-                    trans_this_frame = step_action - source_action[:3]
-                    
-                    trans_sofar[:2] += trans_this_frame[:2] # for x y only
+                    for k in range(skill_2_frame - motion_2_frame):
+                        if not self.use_linear_interpolation:
+                            step_action = step_actions[k]
+                        source_action = source_demo["action"][current_frame]
+                        traj_actions.append(np.concatenate([step_action, source_action[3:]], axis=0))
+                        trans_this_frame = step_action - source_action[:3]
+                        
+                        trans_sofar[:2] += trans_this_frame[:2] # for x y only
 
-                    # "state" and "point_cloud" consider the accumulated translation
-                    state = source_demo["state"][current_frame].copy()
-                    state[:3] += trans_sofar
-                    traj_states.append(state)
+                        # "state" and "point_cloud" consider the accumulated translation
+                        state = source_demo["state"][current_frame].copy()
+                        state[:3] += trans_sofar
+                        traj_states.append(state)
 
-                    source_pcd = source_demo["point_cloud"][current_frame].copy()
-                    pcd_tar, pcd_obj_robot = self.pcd_divide(source_pcd, [tar_bbox])
-                    pcd_tar = self.pcd_translate(pcd_tar, tar_trans_vec)
-                    pcd_obj_robot = self.pcd_translate(pcd_obj_robot, trans_sofar)
-                    traj_pcds.append(np.concatenate([pcd_obj_robot, pcd_tar], axis=0))
+                        source_pcd = source_demo["point_cloud"][current_frame].copy()
+                        pcd_tar, pcd_obj_robot = self.pcd_divide(source_pcd, [tar_bbox])
+                        pcd_tar = self.pcd_translate(pcd_tar, tar_trans_vec)
+                        pcd_obj_robot = self.pcd_translate(pcd_obj_robot, trans_sofar)
+                        traj_pcds.append(np.concatenate([pcd_obj_robot, pcd_tar], axis=0))
 
-                    current_frame += 1
-                ############## stage {motion-2} ends #############
-                    
+                        current_frame += 1
+                    ############## stage {motion-2} ends #############
+
                 ############# stage {skill-2} starts #############
                 later_frames = self.translate_all_frames(source_demo, tar_trans_vec, current_frame)
                 ############# stage {skill-2} ends #############

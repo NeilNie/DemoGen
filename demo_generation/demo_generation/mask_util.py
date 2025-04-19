@@ -1,6 +1,8 @@
 import numpy as np
 from scipy.spatial.transform import Rotation as R
-from demo_generation.calibration.single_arm_mug_tree_calibration import *
+from demo_generation.calibration.bimanual_bookshelf_left import *
+from src.utils.geometry.point_cloud import transform_points
+
 
 ## THE CURRENT CONFIG IS FOR THE MUG TREE TASK
 
@@ -8,6 +10,8 @@ from demo_generation.calibration.single_arm_mug_tree_calibration import *
 # refer to https://gist.github.com/hshi74/edabc1e9bed6ea988a2abd1308e1cc96
 
 ##############################################
+
+is_bimanual = True
 
 
 def inverse_extrinsic_matrix(matrix):
@@ -90,7 +94,23 @@ def trans_pcd(points):
     return points
 
 def restore_and_filter_pcd(pcd_robot, mask, intrinsic_matrix=intrinsic_matrix, image_size=image_size):
-    pcd_cam = restore_original_pcd(pcd_robot)
+
+    # TODO:
+    # for the bimanual case, need to convert pcd_robot to pcd_world first
+    if is_bimanual:
+        _pcd_world = pcd_robot.copy()
+        _pcd_world[:, :3] = transform_points(_pcd_world[:, :3], np.linalg.inv(arm_base_T))
+        pcd_cam = restore_original_pcd(_pcd_world)
+    else:
+        pcd_cam = restore_original_pcd(pcd_robot)
     filtered_points = filter_points_by_mask(pcd_cam, mask, intrinsic_matrix, image_size)
     filtered_points = trans_pcd(filtered_points)
+    if is_bimanual:
+        filtered_points[:, :3] = transform_points(filtered_points[:, :3], arm_base_T)
+
+    # from src.utils.io.point_cloud import save_point_cloud_to_disk
+    # save_point_cloud_to_disk(filtered_points[:, :3], None, "pcd_cam.ply")
+    # save_point_cloud_to_disk(pcd_robot[:, :3], None, "pcd_world_robot.ply")
+    # import pdb; pdb.set_trace()
+
     return filtered_points

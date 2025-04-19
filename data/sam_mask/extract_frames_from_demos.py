@@ -6,16 +6,25 @@ from tqdm import tqdm
 from termcolor import cprint
 
 
+# demo_dirs = [
+#     "/svl/u/neilnie/short_hang_mug_front",
+#     "/svl/u/neilnie/short_hang_mug_top_left",
+#     "/svl/u/neilnie/short_hang_mug_top_right",
+#     "/svl/u/neilnie/short_hang_mug_bottom_left",
+#     "/svl/u/neilnie/short_hang_mug_bottom_right",
+# ]
+
+# demo_name = "mug_tree"
+# output_dir = "/svl/u/neilnie/workspace/vlm-policy-learning/baselines/DemoGen/data/sam_mask"
+
 demo_dirs = [
-    "/svl/u/neilnie/short_hang_mug_front",
-    "/svl/u/neilnie/short_hang_mug_top_left",
-    "/svl/u/neilnie/short_hang_mug_top_right",
-    "/svl/u/neilnie/short_hang_mug_bottom_left",
-    "/svl/u/neilnie/short_hang_mug_bottom_right",
+    "/svl/u/neilnie/bimanual_new_bookshelf_left_processed_new_new",
+    "/svl/u/neilnie/bimanual_new_bookshelf_right_processed_2",
 ]
 
-demo_name = "mug_tree"
+demo_name = "bookshelf_skill_1"
 output_dir = "/svl/u/neilnie/workspace/vlm-policy-learning/baselines/DemoGen/data/sam_mask"
+frame_idx = 300
 
 # create output directory
 output_dir = os.path.join(output_dir, demo_name)
@@ -39,14 +48,12 @@ for demo_dir in tqdm(demo_dirs, desc="Processing demos"):
         if not os.path.exists(this_demo_dir):
             os.makedirs(this_demo_dir)
         
-        first_frame = demo_data["camera_stream_0"]["rgb_frames"][0]
+        first_frame = demo_data["camera_stream_0"]["rgb_frames"][frame_idx]
         cv2.imwrite(os.path.join(this_demo_dir, "source.png"), first_frame)
         demo_counter += 1
 
         files.append(demo_file)
         # TODO: optional break here
-        print(demo_data["temporal_segmentation"])
-        break
 
 cprint("Done", "green")
 cprint(f"output dir: {output_dir}", "yellow")

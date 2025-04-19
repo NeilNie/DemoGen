@@ -1,7 +1,7 @@
 _target_: demo_generation.demogen.DemoGen
 
 data_root: data
-source_name: bookshelf
+source_name: bookshelf_skill_2
 
 task_n_object: 2
 
@@ -12,8 +12,8 @@ use_manual_parsing_frames: true
 parsing_frames:
   motion-1: 450
   skill-1: 500
-  motion-2: 
-  skill-2: 
+  motion-2: null
+  skill-2: null
 
 mask_names:
   object: "green book on the table"

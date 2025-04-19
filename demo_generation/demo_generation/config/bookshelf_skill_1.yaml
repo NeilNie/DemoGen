@@ -1,7 +1,7 @@
 _target_: demo_generation.demogen.DemoGen
 
 data_root: data
-source_name: bookshelf
+source_name: bookshelf_skill_1
 
 task_n_object: 2
 
@@ -10,13 +10,13 @@ interpolate_step_size: 0.01
 
 use_manual_parsing_frames: true
 parsing_frames:
-  motion-1: 300
-  skill-1: 320
-  motion-2: 
-  skill-2: 
+  motion-1: 0
+  skill-1: 20
+  motion-2: null
+  skill-2: null
 
 mask_names:
-  object: "green book on the table"
+  object: "pink book inside the bookshelf"
   target: "brown wooden bookshelf"
 
 trans_range:

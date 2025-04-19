@@ -12,8 +12,8 @@ use_manual_parsing_frames: true
 parsing_frames:
   motion-1: 300
   skill-1: 320
-  motion-2: 
-  skill-2: 
+  motion-2: null
+  skill-2: null
 
 mask_names:
   object: "green book on the table"

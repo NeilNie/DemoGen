@@ -59,16 +59,16 @@ def save_binary_mask(mask, output_path):
 
 # bookshelf task
 # ------------------------------------------------------------------------------
-# model = LangSAM(sam_type="sam2.1_hiera_large")
-# text_prompts = ["green book on the table", "brown wooden bookshelf"]
-# img_dir = "/svl/u/neilnie/workspace/vlm-policy-learning/baselines/DemoGen/data/sam_mask/bookshelf"
+model = LangSAM(sam_type="sam2.1_hiera_large")
+text_prompts = ["green book on the table", "brown wooden bookshelf", "pink book inside the bookshelf"]
+img_dir = "/svl/u/neilnie/workspace/vlm-policy-learning/baselines/DemoGen/data/sam_mask/bookshelf_skill_1"
 # ------------------------------------------------------------------------------
 
 # mug tree task
 # ------------------------------------------------------------------------------
-model = LangSAM(sam_type="sam2.1_hiera_large")
-text_prompts = ["plastic mug", "wooden mug tree"]
-img_dir = "/svl/u/neilnie/workspace/vlm-policy-learning/baselines/DemoGen/data/sam_mask/mug_tree"
+# model = LangSAM(sam_type="sam2.1_hiera_large")
+# text_prompts = ["plastic mug", "wooden mug tree"]
+# img_dir = "/svl/u/neilnie/workspace/vlm-policy-learning/baselines/DemoGen/data/sam_mask/mug_tree"
 # ------------------------------------------------------------------------------
 
 for demo in tqdm(os.listdir(img_dir)):
