@@ -45,6 +45,8 @@ for demo_dir in tqdm(demo_dirs, desc="Processing demos"):
 
         files.append(demo_file)
         # TODO: optional break here
+        print(demo_data["temporal_segmentation"])
+        break
 
 cprint("Done", "green")
 cprint(f"output dir: {output_dir}", "yellow")

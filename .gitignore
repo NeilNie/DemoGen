@@ -1,3 +1,4 @@
+data/datasets/source/*
 outputs/*
 data/ckpts/*
 !data/ckpts/.gitkeep
